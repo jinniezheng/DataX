@@ -265,6 +265,8 @@ public class TxtFileWriter extends Writer {
         private Configuration writerSliceConfig;
 
         private String path;
+        
+        private String suffix;
 
         private String fileName;
 
@@ -272,8 +274,9 @@ public class TxtFileWriter extends Writer {
         public void init() {
             this.writerSliceConfig = this.getPluginJobConf();
             this.path = this.writerSliceConfig.getString(Key.PATH);
+            this.suffix = ".tmp";
             this.fileName = this.writerSliceConfig
-                    .getString(com.alibaba.datax.plugin.unstructuredstorage.writer.Key.FILE_NAME);
+                    .getString(com.alibaba.datax.plugin.unstructuredstorage.writer.Key.FILE_NAME) + this.suffix;
         }
 
         @Override
@@ -295,6 +298,8 @@ public class TxtFileWriter extends Writer {
                 UnstructuredStorageWriterUtil.writeToStream(lineReceiver,
                         outputStream, this.writerSliceConfig, this.fileName,
                         this.getTaskPluginCollector());
+                String newFilename = fileFullPath.substring(0, fileFullPath.length()-4);
+                newFile.renameTo(new File(newFilename));
             } catch (SecurityException se) {
                 throw DataXException.asDataXException(
                         TxtFileWriterErrorCode.SECURITY_NOT_ENOUGH,
